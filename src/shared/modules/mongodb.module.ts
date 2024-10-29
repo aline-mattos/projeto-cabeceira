@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://root:password@localhost:27017', {
-      dbName: 'cabeceiraDB',
+        dbName: 'cabeceira',
     }),
-    UserModule,
   ],
+  exports: [MongooseModule],
 })
-export class AppModule {}
+export class MongoDBModule {}
