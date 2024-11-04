@@ -12,6 +12,7 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
+    console.log(`creating new user: ${JSON.stringify(createUserDto)}`)
     const user = await this.userRepo.create(createUserDto);
     await this.eventService.emit('user.created', user);
     return user;
@@ -27,7 +28,9 @@ export class UserService {
 
   async delete(id: string): Promise<User | null> {
     const user = await this.userRepo.delete(id);
-    // Emit an event if needed
+
+    console.log(`UserService: deleting ${id} - ${JSON.stringify(user)}`)
+
     await this.eventService.emit('user.deleted', user);
     return user;
   }
