@@ -33,6 +33,7 @@ async function service() {
       },
       consumer: {
         groupId: 'rating-service-group',
+        sessionTimeout: 30000,
       },
     },
   });

@@ -33,6 +33,7 @@ async function service() {
       },
       consumer: {
         groupId: 'book-service-group',
+        sessionTimeout: 30000,
       },
     },
   });

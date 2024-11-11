@@ -3,7 +3,7 @@ import { RegistrationDTO } from './dto/registration.dto';
 import { UserRepo } from './user.repo';
 import { MessagePattern } from '@nestjs/microservices';
 import { User } from '../../shared/schemas/user.schema';
-import { EventService } from '../../shared/services/event.service';
+import { EventService, KafkaResponse } from '../../shared/services/event.service';
 import { LoginDTO } from './dto/login.dto';
 
 @Injectable()
@@ -14,10 +14,17 @@ export class UserService {
   ) {}
 
   @MessagePattern('user-existence-request')
-  async checkIfUserExists(message: { userId: string }) {
-    const { userId } = message;
+  async checkIfUserExists(message: { userId: string, correlationId: string }): Promise<KafkaResponse<User | null>> {
+    const { userId, correlationId } = message;
 
-    return await this.userRepo.findById(userId)
+    const user = await this.userRepo.findById(userId);
+
+    console.log(`[E] UserService.checkIfUserExists(${userId}): ${JSON.stringify(user)}`);
+  
+    return { 
+      correlationId,
+      data: user || null
+    };
   }
 
   async register(dto: RegistrationDTO): Promise<User | null> {

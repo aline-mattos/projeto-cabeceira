@@ -8,21 +8,14 @@ import { User, UserDocument } from '../../shared/schemas/user.schema';
 export class UserRepo {
   constructor(@InjectModel(User.name) private model: Model<UserDocument>) {}
 
-  async create(createUserDto: RegistrationDTO): Promise<User | null> {
-    const session = await this.model.db.startSession();
-    session.startTransaction();
-    
+  async create(dto: RegistrationDTO): Promise<User | null> {
     try {
-      const user = new this.model(createUserDto);
-      await user.save({ session });
-      await session.commitTransaction();
+      const user = new this.model(dto);
+      await user.save(); 
       return user;
     } catch (error) {
-      await session.abortTransaction();
-      console.log(`[E] UserRepo.create(${createUserDto}): ${error}`)
-      return null
-    } finally {
-      session.endSession();
+      console.log(`[E] UserRepo.create(${dto}): ${error}`);
+      return null;
     }
   }
 

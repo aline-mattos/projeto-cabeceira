@@ -8,21 +8,14 @@ import { Book, BookDocument } from '../../shared/schemas/book.schema';
 export class BookRepo {
   constructor(@InjectModel(Book.name) private model: Model<BookDocument>) {}
 
-  async create(createBookDto: CreateBookDto): Promise<Book | null> {
-    const session = await this.model.db.startSession();
-    session.startTransaction();
-    
+  async create(dto: CreateBookDto): Promise<Book | null> {
     try {
-      const book = new this.model(createBookDto);
-      await book.save({ session });
-      await session.commitTransaction();
+      const book = new this.model(dto);
+      await book.save();
       return book;
     } catch (error) {
-      await session.abortTransaction();
-      console.log(`[E] BookRepo.create(${createBookDto}): ${error}`)
-      return null
-    } finally {
-      session.endSession();
+      console.log(`[E] BookRepo.create(${dto}): ${error}`);
+      return null;
     }
   }
 

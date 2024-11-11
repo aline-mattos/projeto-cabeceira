@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   zookeeper:
     image: wurstmeister/zookeeper:latest
@@ -6,6 +8,8 @@ services:
     environment:
       ZOO_MY_ID: 1
       ZOO_SERVERS: server.1=zookeeper:2888:3888
+    networks:
+      - kafka_network
 
   kafka:
     image: wurstmeister/kafka:latest
@@ -20,6 +24,8 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE  # Set to the internal listener name
     depends_on:
       - zookeeper
+    networks:
+      - kafka_network
 
   mongodb:
     image: mongo:latest
@@ -28,9 +34,10 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: password
-    command: --replSet rs0
     volumes:
       - mongo_data:/data/db
+    networks:
+      - kafka_network
 
   user-service:
     build:
@@ -41,6 +48,8 @@ services:
       - mongodb
     ports:
       - "3001:3001"
+    networks:
+      - kafka_network
 
   book-service:
     build:
@@ -51,6 +60,8 @@ services:
       - mongodb
     ports:
       - "3002:3002"
+    networks:
+      - kafka_network
 
   bookshelf-service:
     build:
@@ -61,6 +72,8 @@ services:
       - mongodb
     ports:
       - "3003:3003"
+    networks:
+      - kafka_network
 
   rating-service:
     build:
@@ -71,6 +84,12 @@ services:
       - mongodb
     ports:
       - "3004:3004"
+    networks:
+      - kafka_network
 
 volumes:
   mongo_data:
+
+networks:
+  kafka_network:
+    driver: bridge

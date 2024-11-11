@@ -3,7 +3,7 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { BookRepo } from './book.repo';
 import { MessagePattern } from '@nestjs/microservices';
 import { Book } from '../../shared/schemas/book.schema';
-import { EventService } from '../../shared/services/event.service';
+import { EventService, KafkaResponse } from '../../shared/services/event.service';
 
 @Injectable()
 export class BookService {
@@ -13,10 +13,17 @@ export class BookService {
   ) {}
 
   @MessagePattern('book-existence-request')
-  async checkIfBookExists(message: { bookId: string }) {
-    const { bookId } = message;
+  async checkIfBookExists(message: { bookId: string, correlationId: string }): Promise<KafkaResponse<Book | null>> {
+    const { bookId, correlationId } = message;
+  
+    const book = await this.bookRepo.findOne(bookId);
 
-    return await this.bookRepo.findOne(bookId)
+    console.log(`[E] BookService.checkIfBookExists(${bookId}): ${JSON.stringify(book)}`);
+  
+    return { 
+      correlationId,
+      data: book || null
+    };
   }
 
   async create(createBookDto: CreateBookDto): Promise<Book | null> {
