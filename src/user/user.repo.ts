@@ -26,7 +26,6 @@ export class UserRepo {
     }
   }
 
-
   async findAll(): Promise<User[]> {
     return this.model.find().exec();
   }

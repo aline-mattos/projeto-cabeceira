@@ -19,10 +19,14 @@ export class UserService {
     return await this.userRepo.findOne(userId)
   }
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    console.log(`creating new user: ${JSON.stringify(createUserDto)}`)
+  async create(createUserDto: CreateUserDto): Promise<User | null> {
     const user = await this.userRepo.create(createUserDto);
+    if (!user) {
+      console.log(`[E] UserService.create(${JSON.stringify(createUserDto)}) - Erro ao criar o usuário`);
+      return null;
+    }
     await this.eventService.emit('user.created', user);
+    console.log(`Novo usuário criado: ${JSON.stringify(createUserDto)}`)
     return user;
   }
 
