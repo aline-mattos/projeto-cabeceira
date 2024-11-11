@@ -8,10 +8,24 @@ import { User, UserDocument } from './schemas/user.schema';
 export class UserRepo {
   constructor(@InjectModel(User.name) private model: Model<UserDocument>) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    const user = new this.model(createUserDto);
-    return user.save();
+  async create(createUserDto: CreateUserDto): Promise<User | null> {
+    const session = await this.model.db.startSession();
+    session.startTransaction();
+    
+    try {
+      const user = new this.model(createUserDto);
+      await user.save({ session });
+      await session.commitTransaction();
+      return user;
+    } catch (error) {
+      await session.abortTransaction();
+      console.log(`[E] UserRepo.create(${createUserDto}): ${error}`)
+      return null
+    } finally {
+      session.endSession();
+    }
   }
+
 
   async findAll(): Promise<User[]> {
     return this.model.find().exec();

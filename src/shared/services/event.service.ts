@@ -12,4 +12,15 @@ export class EventService implements OnModuleInit {
   async emit(topic: string, message: any) {
     await this.client.emit(topic, message);
   }
+
+  async requestReply<T>(topic: string, message: any): Promise<T> {
+    return new Promise((resolve, reject) => {
+      this.client
+        .send(topic, message)
+        .subscribe({
+          next: (response: T) => resolve(response),
+          error: (err) => reject(err),
+        });
+    });
+  }
 }

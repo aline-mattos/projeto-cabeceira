@@ -3,6 +3,7 @@ import { EventService } from '../shared/services/event.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './schemas/user.schema';
 import { UserRepo } from './user.repo';
+import { MessagePattern } from '@nestjs/microservices';
 
 @Injectable()
 export class UserService {
@@ -10,6 +11,13 @@ export class UserService {
     private readonly userRepo: UserRepo,
     private readonly eventService: EventService,
   ) {}
+
+  @MessagePattern('user-existence-request')
+  async checkIfUserExists(message: { userId: string }) {
+    const { userId } = message;
+
+    return await this.userRepo.findOne(userId)
+  }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     console.log(`creating new user: ${JSON.stringify(createUserDto)}`)

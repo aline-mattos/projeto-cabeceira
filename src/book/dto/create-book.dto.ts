@@ -7,4 +7,3 @@ export class CreateBookDto {
     pages: number;
     ISBN: string;
 }
-  

@@ -11,18 +11,19 @@ export class BookController {
     return this.bookService.findAll();
   }
 
-  @Get(':isbn')  // Using ISBN instead of ID
-  async findOne(@Param('isbn') isbn: string) {
-    return this.bookService.findOne(isbn);
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    return this.bookService.findOne(id);
   }
 
-  @Delete(':isbn')  // Using ISBN instead of ID
-  async delete(@Param('isbn') isbn: string) {
-    return this.bookService.delete(isbn);
+  @Delete(':id')
+  async delete(@Param('id') id: string) {
+    return this.bookService.delete(id);
   }
 
   @Post('/create')
   async create(@Body() createBookDto: CreateBookDto) {
     return this.bookService.create(createBookDto);
   }
+  
 }
