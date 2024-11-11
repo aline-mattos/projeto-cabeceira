@@ -2,20 +2,15 @@
   "name": "cabeceira",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "Aline Belomo de Mattos",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start:user": "ts-node src/main-user.ts",
-    "start:book": "ts-node src/main-book.ts",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "start:user": "ts-node src/microservices/user/main.ts",
+    "start:book": "ts-node src/microservices/book/main.ts",
+    "start:bookshelf": "ts-node src/microservices/bookshelf/main.ts",
+    "start:rating": "ts-node src/microservices/rating/main.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -23,10 +18,12 @@
     "@nestjs/microservices": "^10.4.6",
     "@nestjs/mongoose": "^10.1.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/swagger": "^8.0.5",
     "kafkajs": "^2.2.4",
     "mongoose": "^8.7.3",
     "reflect-metadata": "^0.2.0",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

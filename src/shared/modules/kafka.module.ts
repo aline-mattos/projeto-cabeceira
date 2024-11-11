@@ -9,7 +9,7 @@ import { ClientsModule, Transport, ClientKafka } from '@nestjs/microservices';
         transport: Transport.KAFKA,
         options: {
           client: {
-            brokers: ['localhost:9092'],
+            brokers: ['kafka:9093'],
           },
           consumer: {
             groupId: 'shared-event-emitter-group',
