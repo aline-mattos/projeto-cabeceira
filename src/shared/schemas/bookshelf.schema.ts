@@ -4,12 +4,12 @@ import { Book } from './book.schema';
 import { User } from './user.schema';
 
 @Schema({ _id: false, timestamps: false })
-export class BookState {
-  @Prop({ type: String, required: true })
-  status: string;
-
+export class BookStatus {
   @Prop({ type: Types.ObjectId, ref: 'Book', required: true })
   book: Book;
+
+  @Prop({ type: String, required: true })
+  status: string;
 }
 
 export type BookshelfDocument = Bookshelf & Document;
@@ -20,8 +20,8 @@ export class Bookshelf {
   @Prop({ type: Types.ObjectId })
   _id: Types.ObjectId;
 
-  @Prop([BookState])
-  books: BookState[];
+  @Prop([BookStatus])
+  statuses: BookStatus[];
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   user: User;

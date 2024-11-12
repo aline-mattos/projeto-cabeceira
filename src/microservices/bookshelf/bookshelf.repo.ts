@@ -1,31 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Bookshelf, BookshelfDocument, BookState } from '../../shared/schemas/bookshelf.schema';
+import { Bookshelf, BookshelfDocument, BookStatus } from '../../shared/schemas/bookshelf.schema';
+import { ServiceResponse } from '../../shared/utils/ServiceResponse';
 
 @Injectable()
 export class BookshelfRepo {
   constructor(@InjectModel(Bookshelf.name) private model: Model<BookshelfDocument>) {}
 
-  async upsert(userId: string, bookState: BookState): Promise<Bookshelf | null> {
+  async upsert(userId: string, status: BookStatus): Promise<ServiceResponse<Bookshelf>> {
     try {
       const bookshelf = await this.model
         .findOneAndUpdate(
-          { user: userId, 'books.book': { $ne: bookState.book } },
-          { $addToSet: { books: bookState } },
+          { user: userId, 'books.book': { $ne: status.book } },
+          { $addToSet: { statuses: status } },
           { new: true, upsert: true }
         )
         .populate('user')
         .populate('books.book')
         .exec();
-      return bookshelf;
+
+      if (bookshelf) {
+        return ServiceResponse.success(bookshelf);
+      } else {
+        return ServiceResponse.failure('Failed to upsert bookshelf');
+      }
     } catch (error) {
-      console.log(`[E] BookshelfRepo.upsert(${userId}, ${bookState}): ${error}`);
-      return null;
+      return ServiceResponse.failure(error);
     }
   }
 
-  async updateBookStatus(userId: string, bookId: string, newStatus: string): Promise<Bookshelf | null> {
+  async updateBookStatus(userId: string, bookId: string, newStatus: string): Promise<ServiceResponse<Bookshelf>> {
     try {
       const bookshelf = await this.model
         .findOneAndUpdate(
@@ -36,26 +41,55 @@ export class BookshelfRepo {
         .populate('user')
         .populate('books.book')
         .exec();
-      return bookshelf;
+
+      if (bookshelf) {
+        return ServiceResponse.success(bookshelf);
+      } else {
+        return ServiceResponse.failure('Failed to update book status');
+      }
     } catch (error) {
-      console.log(`[E] BookshelfRepo.updateBookStatus(${userId}, ${bookId}, ${newStatus}): ${error}`);
-      return null;
+      return ServiceResponse.failure(error);
     }
   }
 
-  async findByUser(userId: string): Promise<Bookshelf | null> {
-    return this.model.findOne({ user: userId }).populate('user').populate('books.book').exec();
+  async find(filter: Record<string, any> = {}): Promise<ServiceResponse<Bookshelf>> {
+    try {
+      const bookshelf = await this.model
+        .findOne(filter)
+        .populate('user')
+        .populate('books.book')
+        .exec();
+
+      if (bookshelf) {
+        return ServiceResponse.success(bookshelf);
+      } else {
+        return ServiceResponse.failure('Bookshelf not found');
+      }
+    } catch (error) {
+      return ServiceResponse.failure(error);
+    }
   }
 
-  async deleteBook(userId: string, bookId: string): Promise<Bookshelf | null> {
-    return this.model
-      .findOneAndUpdate(
-        { user: userId },
-        { $pull: { books: { book: bookId } } },
-        { new: true }
-      )
-      .populate('user')
-      .populate('books.book')
-      .exec();
+  async deleteBook(userId: string, bookId: string): Promise<ServiceResponse<Bookshelf>> {
+    try {
+      const bookshelf = await this.model
+        .findOneAndUpdate(
+          { user: userId },
+          { $pull: { statuses: { book: bookId } } },
+          { new: true }
+        )
+        .populate('user')
+        .populate('books.book')
+        .exec();
+
+      if (bookshelf) {
+        return ServiceResponse.success(bookshelf);
+      } else {
+        return ServiceResponse.failure("Failed to delete book from bookshelf");
+      }
+    } catch (error) {
+      return ServiceResponse.failure(error);
+    }
   }
 }
+

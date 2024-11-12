@@ -1,48 +1,64 @@
 import { Injectable } from '@nestjs/common';
 import { BookshelfRepo } from './bookshelf.repo';
-import { UpsertBookshelfDTO } from './dto/create-bookshelf.dto';
-import { Book } from '../../shared/schemas/book.schema';
-import { Bookshelf, BookState } from '../../shared/schemas/bookshelf.schema';
+import { UpsertBookshelfDTO } from './dto/upsert-bookshelf.dto';
+import { Bookshelf } from '../../shared/schemas/bookshelf.schema';
 import { User } from '../../shared/schemas/user.schema';
 import { EventService } from '../../shared/services/event.service';
-import { UserService } from '../user/user.service';
 import { BookService } from '../book/book.service';
 
 @Injectable()
 export class BookshelfService {
   constructor(
     private readonly repo: BookshelfRepo,
-    private readonly userService: UserService,
     private readonly bookService: BookService,
     private readonly eventService: EventService,
   ) {}
 
-  async addBook(dto: UpsertBookshelfDTO): Promise<Bookshelf | null> {
-    
-    const book = await this.bookService.find({ _id: dto.bookId});
-
+  async upsert(dto: UpsertBookshelfDTO, user: User): Promise<Bookshelf | undefined> {
+    const book = await this.bookService.find({ _id: dto.bookId })
     if (!book) {
-      console.log("Livro não encontrado.")
-      return null
+      console.log(`[I] RatingService.upsert(${JSON.stringify(book)}): Book not found!`);
+      return undefined
     }
 
-    const bookState : BookState = {
-      status: dto.status,
-      book
-    };
-    
-    return null //this.repo.upsert(createBookshelfDto.userId, bookState);
+    const result = await this.repo.upsert(
+      user._id.toString(), 
+      {
+        book: book,
+        status: dto.status,
+      }
+    );
+
+    if (result.error)  console.log(`[E] BookshelfService.upsert: ${result.error}`); 
+    else console.log(`[I] BookshelfService.upsert: Successfully updated bookshelf`);
+
+    return result.data;
   }
 
-  async findBooks(userId: string): Promise<Bookshelf | null> {
-    return await this.repo.findByUser(userId);
+  async updateStatus(dto: UpsertBookshelfDTO, user: User): Promise<Bookshelf | undefined> {
+    const result = await this.repo.updateBookStatus(user._id.toString(), dto.bookId, dto.status);
+  
+    if (result.error) console.log(`[E] BookshelfService.updateStatus(${JSON.stringify(dto)}): ${result.error}`); 
+    else console.log(`[I] BookshelfService.updateStatus(${JSON.stringify(dto)}): ${JSON.stringify(result.data)}`);
+  
+    return result.data;
   }
 
-  async removeBook(userId: string, bookId: string): Promise<Bookshelf | null> {
-    return await this.repo.deleteBook(userId, bookId);
+  async find(filter: Record<string, any>): Promise<Bookshelf | undefined> {
+    const result = await this.repo.find(filter);
+  
+    if (result.error) console.log(`[E] BookshelfService.find(${JSON.stringify(filter)}): ${result.error}`); 
+    else console.log(`[I] BookshelfService.find(${JSON.stringify(filter)}): ${JSON.stringify(result.data)}`);
+  
+    return result.data;
   }
 
-  async updateBookStatus(userId: string, bookId: string, newStatus: string): Promise<Bookshelf | null> {
-    return await this.repo.updateBookStatus(userId, bookId, newStatus);
+  async removeBook(bookId: string, user: User): Promise<Bookshelf | undefined> { 
+    const result = await this.repo.deleteBook(user._id.toString(), bookId);
+
+    if (result.error) console.log(`[E] BookshelfService.find(${bookId}): ${result.error}`); 
+    else console.log(`[I] BookshelfService.find(${bookId}): ${JSON.stringify(result.data)}`);
+  
+    return result.data;
   }
 }
