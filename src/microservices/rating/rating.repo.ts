@@ -10,12 +10,13 @@ export class RatingRepo {
 
   async upsert(data: Rating): Promise<ServiceResponse<Rating>> {
     try {
-      const result = await this.model.findOneAndUpdate(
-        { _id: data._id }, 
-        { $set: data }, 
-        { new: true, upsert: true }
+      return ServiceResponse.success(
+        await this.model.findOneAndUpdate(
+          { _id: data._id || new Types.ObjectId() }, 
+          { $set: data }, 
+          { new: true, upsert: true }
+        )
       );
-      return ServiceResponse.success(result);
     } catch (error) {
       return ServiceResponse.failure(error);
     }

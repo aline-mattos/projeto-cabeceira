@@ -10,12 +10,27 @@ export class BookRepo {
 
   async upsert(data: Book): Promise<ServiceResponse<Book>> {
     try {
-      const result = await this.model.findOneAndUpdate(
-        { _id: data._id }, 
-        { $set: data }, 
-        { new: true, upsert: true }
+      return ServiceResponse.success(
+        await this.model.findOneAndUpdate(
+          { _id: data._id || new Types.ObjectId() }, 
+          { $set: data }, 
+          { new: true, upsert: true }
+        )
       );
-      return ServiceResponse.success(result);
+    } catch (error) {
+      return ServiceResponse.failure(error);
+    }
+  }
+
+  async findById(id:string): Promise<ServiceResponse<Book>> {
+    try {
+      const result = await this.model.findOne({ _id: new Types.ObjectId(id) }).exec();
+  
+      if (result) {
+        return ServiceResponse.success(result);
+      } else {
+        return ServiceResponse.failure('Data not found!');
+      }
     } catch (error) {
       return ServiceResponse.failure(error);
     }

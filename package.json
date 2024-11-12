@@ -10,8 +10,7 @@
     "start:user": "ts-node src/microservices/user/main.ts",
     "start:book": "ts-node src/microservices/book/main.ts",
     "start:bookshelf": "ts-node src/microservices/bookshelf/main.ts",
-    "start:rating": "ts-node src/microservices/rating/main.ts",
-    "start:auth": "ts-node src/microservices/auth/main.ts"
+    "start:rating": "ts-node src/microservices/rating/main.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -22,9 +21,11 @@
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^8.0.5",
+    "axios": "^1.7.7",
     "kafkajs": "^2.2.4",
     "mongoose": "^8.7.3",
     "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.1"
@@ -36,6 +37,8 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.2",
     "@types/node": "^20.3.1",
+    "@types/passport": "^1.0.17",
+    "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",

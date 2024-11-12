@@ -6,11 +6,15 @@ import { RatingController } from './rating.controller';
 import { RatingService } from './rating.service';
 import { RatingRepo } from './rating.repo';
 import { Rating, RatingSchema } from '../../shared/schemas/rating.schema';
+import { BookModule } from '../book/book.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
     MongoDBModule,
     EventModule,
+    BookModule,
+    UserModule,
     MongooseModule.forFeature([{ name: Rating.name, schema: RatingSchema }]),
   ],
   controllers: [RatingController],

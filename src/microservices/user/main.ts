@@ -16,7 +16,7 @@ async function service() {
       new DocumentBuilder()
       .setTitle('User Microservice API') 
       .setDescription('API documentation for the User Microservice') 
-      .setVersion('1.0') 
+      .setVersion('1.0')
       .addTag('user')
       .build()
     )

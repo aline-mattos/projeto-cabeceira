@@ -87,18 +87,6 @@ services:
     networks:
       - kafka_network
 
-  auth-service:
-    build:
-      context: .
-    command: npm run start:auth
-    depends_on:
-      - kafka
-      - mongodb
-    ports:
-      - "3005:3005"
-    networks:
-      - kafka_network
-
 volumes:
   mongo_data:
 

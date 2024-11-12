@@ -19,6 +19,15 @@ export class BookService {
     return result.data;
   }
 
+  async findById(id:string): Promise<Book | undefined> {
+    const result = await this.repo.findById(id);
+  
+    if (result.error) console.log(`[E] BookService.findById(${JSON.stringify(id)}): ${result.error}`); 
+    else console.log(`[I] BookService.findById(${JSON.stringify(id)}): ${JSON.stringify(result.data)}`);
+  
+    return result.data;
+  }
+
   async find(filter: Record<string, any>): Promise<Book | undefined> {
     const result = await this.repo.find(filter);
   
