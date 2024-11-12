@@ -10,17 +10,21 @@
     "start:user": "ts-node src/microservices/user/main.ts",
     "start:book": "ts-node src/microservices/book/main.ts",
     "start:bookshelf": "ts-node src/microservices/bookshelf/main.ts",
-    "start:rating": "ts-node src/microservices/rating/main.ts"
+    "start:rating": "ts-node src/microservices/rating/main.ts",
+    "start:auth": "ts-node src/microservices/auth/main.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
+    "@nestjs/jwt": "^10.2.0",
     "@nestjs/microservices": "^10.4.6",
     "@nestjs/mongoose": "^10.1.0",
+    "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^8.0.5",
     "kafkajs": "^2.2.4",
     "mongoose": "^8.7.3",
+    "passport": "^0.7.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.1"

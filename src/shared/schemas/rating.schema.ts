@@ -7,6 +7,9 @@ export type RatingDocument = Rating & Document;
 
 @Schema()
 export class Rating {
+
+  @Prop({ type: Types.ObjectId })
+  _id: Types.ObjectId;
   
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   user: User;
@@ -17,8 +20,8 @@ export class Rating {
   @Prop({ type: Number, required: true })
   rating: number;
 
-  @Prop({ type: String, required: true })
-  review: string;
+  @Prop({ type: String, required: false })
+  review?: string;
 }
 
 export const RatingSchema = SchemaFactory.createForClass(Rating);

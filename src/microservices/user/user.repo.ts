@@ -1,37 +1,65 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { RegistrationDTO } from './dto/registration.dto';
 import { User, UserDocument } from '../../shared/schemas/user.schema';
+import { ServiceResponse } from '../../shared/utils/ServiceResponse';
 
 @Injectable()
 export class UserRepo {
   constructor(@InjectModel(User.name) private model: Model<UserDocument>) {}
 
-  async create(dto: RegistrationDTO): Promise<User | null> {
+  async upsert(data: User): Promise<ServiceResponse<User>> {
     try {
-      const user = new this.model(dto);
-      await user.save(); 
-      return user;
+      const result = await this.model.findOneAndUpdate(
+        { _id: data._id }, 
+        { $set: data }, 
+        { new: true, upsert: true }
+      );
+      return ServiceResponse.success(result);
     } catch (error) {
-      console.log(`[E] UserRepo.create(${dto}): ${error}`);
-      return null;
+      return ServiceResponse.failure(error);
     }
   }
 
-  async findAll(): Promise<User[]> {
-    return this.model.find().exec();
+  async find(filter: Record<string, any>): Promise<ServiceResponse<User>> {
+    try {
+      const result = await this.model.findOne(filter).exec();
+  
+      if (result) {
+        return ServiceResponse.success(result);
+      } else {
+        return ServiceResponse.failure('Data not found!');
+      }
+    } catch (error) {
+      return ServiceResponse.failure(error);
+    }
   }
 
-  async findById(id: string): Promise<User | null> {
-    return this.model.findById(new Types.ObjectId(id)).exec();
+  async findAll(): Promise<ServiceResponse<User[]>> {
+    try {
+      const result = await this.model.find().exec();
+
+      if (result) {
+        return ServiceResponse.success(result);
+      } else {
+        return ServiceResponse.failure('Data not found!');
+      }
+    } catch (error) {
+      return ServiceResponse.failure(error);
+    }
   }
 
-  async findByEmail(email: string): Promise<User | null> {
-    return this.model.findOne({ email }).exec();
-  }
+  async delete(id: string): Promise<ServiceResponse<User>> {
+    try {
+      const result = await this.model.findByIdAndDelete(new Types.ObjectId(id)).exec();
 
-  async delete(id: string): Promise<User | null> {
-    return this.model.findByIdAndDelete(new Types.ObjectId(id)).exec();
+      if (result) {
+        return ServiceResponse.success(result);
+      } else {
+        return ServiceResponse.failure("Data couldn't be deleted!");
+      }
+    } catch (error) {
+      return ServiceResponse.failure(error);
+    }
   }
 }

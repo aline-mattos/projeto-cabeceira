@@ -1,6 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateBookDto {
+export class UpsertBookDTO {
+  @ApiProperty({ description: 'The title of the book', required: false  })
+  _id?: string;
+
   @ApiProperty({ description: 'The title of the book' })
   title: string;
 

@@ -1,64 +1,48 @@
 import { Injectable } from '@nestjs/common';
-import { RegistrationDTO } from './dto/registration.dto';
 import { UserRepo } from './user.repo';
-import { MessagePattern } from '@nestjs/microservices';
 import { User } from '../../shared/schemas/user.schema';
-import { EventService, KafkaResponse } from '../../shared/services/event.service';
-import { LoginDTO } from './dto/login.dto';
+import { EventService } from '../../shared/services/event.service';
 
 @Injectable()
 export class UserService {
   constructor(
-    private readonly userRepo: UserRepo,
+    private readonly repo: UserRepo,
     private readonly eventService: EventService,
   ) {}
 
-  @MessagePattern('user-existence-request')
-  async checkIfUserExists(message: { userId: string, correlationId: string }): Promise<KafkaResponse<User | null>> {
-    const { userId, correlationId } = message;
+  async upsert(user: User): Promise<User | undefined> {
+    const result = await this.repo.upsert(user)
 
-    const user = await this.userRepo.findById(userId);
+    if (result.error) console.log(`[E] UserService.upsert(${JSON.stringify(user)}): ${result.error}`);
+    else console.log(`[I] UserService.upsert(${JSON.stringify(user)}): ${JSON.stringify(result.data)}`);
 
-    console.log(`[E] UserService.checkIfUserExists(${userId}): ${JSON.stringify(user)}`);
+    return result.data;
+  }
+
+  async find(filter: Record<string, any>): Promise<User | undefined> {
+    const result = await this.repo.find(filter);
   
-    return { 
-      correlationId,
-      data: user || null
-    };
+    if (result.error) console.log(`[E] UserService.find(${JSON.stringify(filter)}): ${result.error}`); 
+    else console.log(`[I] UserService.find(${JSON.stringify(filter)}): ${JSON.stringify(result.data)}`);
+  
+    return result.data;
   }
 
-  async register(dto: RegistrationDTO): Promise<User | null> {
-    const user = await this.userRepo.create(dto);
+  async findAll(): Promise<User[] | undefined> {
+    const result = await this.repo.findAll();
 
-    if (!user) {
-      console.log(`[E] UserService.register(${JSON.stringify(dto)}) - Erro ao registrar o usuário`);
-      return null;
-    }
+    if (result.error) console.log(`[E] UserService.findAll(): ${result.error}`); 
+    else console.log(`[I] UserService.findAll(): ${JSON.stringify(result.data)}`);
 
-    console.log(`Novo usuário criado: ${JSON.stringify(dto)}`)
-
-    return user;
+    return result.data;
   }
 
-  async findAll(): Promise<User[]> {
-    return await this.userRepo.findAll();
-  }
+  async delete(id: string): Promise<User | undefined> {
+    const result = await this.repo.delete(id);
 
-  async login(dto: LoginDTO): Promise<User | null> {
-    const user = await  this.userRepo.findByEmail(dto.email)
+    if (result.error) console.log(`[E] UserService.delete(${id}): ${result.error}`); 
+    else console.log(`[I] UserService.delete(${id}): ${JSON.stringify(result.data)}`);
 
-    if (user?.password === dto.password) {
-      return user
-    } else {
-      return null
-    }
-  }
-
-  async delete(id: string): Promise<User | null> {
-    const user = await this.userRepo.delete(id);
-
-    console.log(`UserService: deleting ${id} - ${JSON.stringify(user)}`)
-
-    return user;
+    return result.data;
   }
 }

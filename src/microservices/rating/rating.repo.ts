@@ -2,36 +2,64 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Rating, RatingDocument } from '../../shared/schemas/rating.schema';
-import { CreateRatingDto } from './dto/create-rating.dto';
+import { ServiceResponse } from '../../shared/utils/ServiceResponse';
 
 @Injectable()
 export class RatingRepo {
   constructor(@InjectModel(Rating.name) private model: Model<RatingDocument>) {}
 
-  async create(dto: CreateRatingDto): Promise<Rating | null> {
+  async upsert(data: Rating): Promise<ServiceResponse<Rating>> {
     try {
-      const rating = new this.model(dto);
-      await rating.save();
-      return rating;
+      const result = await this.model.findOneAndUpdate(
+        { _id: data._id }, 
+        { $set: data }, 
+        { new: true, upsert: true }
+      );
+      return ServiceResponse.success(result);
     } catch (error) {
-      console.log(`[E] RatingRepo.create(${dto}): ${error}`);
-      return null;
+      return ServiceResponse.failure(error);
     }
   }
 
-  async findAll(): Promise<Rating[]> {
-    return this.model.find().exec();
+  async find(filter: Record<string, any>): Promise<ServiceResponse<Rating>> {
+    try {
+      const result = await this.model.findOne(filter).exec();
+  
+      if (result) {
+        return ServiceResponse.success(result);
+      } else {
+        return ServiceResponse.failure('Data not found!');
+      }
+    } catch (error) {
+      return ServiceResponse.failure(error);
+    }
   }
 
-  async findByUser(id: string): Promise<Rating[]> {
-    return this.model.find().exec();
+  async findAll(): Promise<ServiceResponse<Rating[]>> {
+    try {
+      const result = await this.model.find().exec();
+
+      if (result) {
+        return ServiceResponse.success(result);
+      } else {
+        return ServiceResponse.failure('Data not found!');
+      }
+    } catch (error) {
+      return ServiceResponse.failure(error);
+    }
   }
 
-  async findByBook(id: string): Promise<Rating[]> {
-    return this.model.find().exec();
-  }
+  async delete(id: string): Promise<ServiceResponse<Rating>> {
+    try {
+      const result = await this.model.findByIdAndDelete(new Types.ObjectId(id)).exec();
 
-  async delete(id: string): Promise<Rating | null> {
-    return this.model.findByIdAndDelete(new Types.ObjectId(id)).exec();
+      if (result) {
+        return ServiceResponse.success(result);
+      } else {
+        return ServiceResponse.failure("Data couldn't be deleted!");
+      }
+    } catch (error) {
+      return ServiceResponse.failure(error);
+    }
   }
 }

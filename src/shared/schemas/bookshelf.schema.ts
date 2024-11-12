@@ -17,6 +17,9 @@ export type BookshelfDocument = Bookshelf & Document;
 @Schema()
 export class Bookshelf {
 
+  @Prop({ type: Types.ObjectId })
+  _id: Types.ObjectId;
+
   @Prop([BookState])
   books: BookState[];
 
