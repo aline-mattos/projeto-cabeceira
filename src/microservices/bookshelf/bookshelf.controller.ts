@@ -1,16 +1,16 @@
-import { Controller, Post, Body, Get, Param, Delete, Headers } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Delete, Headers, Query } from '@nestjs/common';
 import { BookshelfService } from './bookshelf.service';
 import { UpsertBookshelfDTO } from './dto/upsert-bookshelf.dto';
 import { Bookshelf } from '../../shared/schemas/bookshelf.schema';
 import { ApiTags, ApiOperation, ApiBody, ApiResponse, ApiParam } from '@nestjs/swagger';
-import { UserService } from '../user/user.service';
+import { APIGateway } from '../../shared/gateway/api_gateway';
+import { Types } from 'mongoose';
 
 @ApiTags('bookshelf')
 @Controller('bookshelf')
 export class BookshelfController {
   constructor(
-    private readonly service: BookshelfService,
-    private readonly userService: UserService
+    private readonly service: BookshelfService
   ) {}
 
   @Post('add')
@@ -19,9 +19,7 @@ export class BookshelfController {
   @ApiResponse({ status: 201, description: 'Successfully added book to the bookshelf' })
   @ApiResponse({ status: 400, description: 'Invalid data provided' })
   async addBook(@Headers('authorization') auth: string, @Body() dto: UpsertBookshelfDTO): Promise<Bookshelf | undefined> {
-    const user = await this.userService.authorize(auth);
-    if (user) return await this.service.upsert(dto, user);
-    else undefined
+    return await this.service.upsert(dto, auth);
   }
 
   @Get('retrive')
@@ -30,9 +28,9 @@ export class BookshelfController {
   @ApiResponse({ status: 200, description: 'Successfully retrieved the user\'s bookshelf' })
   @ApiResponse({ status: 404, description: 'User not found' })
   async retrieveBookshelf(@Headers('authorization') auth: string): Promise<Bookshelf | undefined> {
-    const user = await this.userService.authorize(auth);
-    if (user) return await this.service.find({ user: user._id })
-    else undefined
+    const user = await APIGateway.user.authorize(auth);
+    if (user) return await this.service.find({ user: new Types.ObjectId(user._id) })
+    else return undefined
   }
 
   @Delete('remove')
@@ -40,9 +38,7 @@ export class BookshelfController {
   @ApiBody({ type: Object, description: 'Details of the book to remove from the bookshelf' })
   @ApiResponse({ status: 200, description: 'Successfully removed book from the bookshelf' })
   @ApiResponse({ status: 404, description: 'Book or user not found' })
-  async removeBook(@Headers('authorization') auth: string, @Param('bookId') bookId: string): Promise<Bookshelf | undefined> {
-    const user = await this.userService.authorize(auth);
-    if (user) return await this.service.removeBook(bookId, user);
-    else undefined
+  async removeBook(@Headers('authorization') auth: string, @Query('bookId') bookId: string): Promise<Bookshelf | undefined> {
+    return await this.service.removeBook(bookId, auth);
   }
 }

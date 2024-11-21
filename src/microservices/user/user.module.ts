@@ -14,7 +14,7 @@ import { JwtModule } from '@nestjs/jwt';
     EventModule,
     JwtModule.register({
       secret: '01932033-4251-73cb-b46d-66541e1c40b8',
-      signOptions: { expiresIn: '1h' },
+      signOptions: { expiresIn: '24h' },
     }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],

@@ -4,14 +4,13 @@ import { UpsertBookDTO } from './dto/upsert-book.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 import { Book } from '../../shared/schemas/book.schema';
 import { Types } from 'mongoose';
-import { UserService } from '../user/user.service';
+import { APIGateway } from '../../shared/gateway/api_gateway';
 
 @ApiTags('book')
 @Controller('book')
 export class BookController {
   constructor(
-    private readonly service: BookService,
-    private readonly userService: UserService) {}
+    private readonly service: BookService) {}
 
   @Post('/upsert')
   @ApiOperation({ summary: 'Update/Insert a new book' })
@@ -19,12 +18,10 @@ export class BookController {
   @ApiResponse({ status: 201, description: 'Successfully created the book' })
   @ApiResponse({ status: 400, description: 'Invalid data provided' })
   async upsert(@Headers('authorization') auth: string, @Body() dto: UpsertBookDTO) {
-    const user = await this.userService.authorize(auth);
-    if (user) return await this.service.upsert({
+    return await this.service.upsert({
       ...dto,
       _id: dto._id ? new Types.ObjectId(dto._id) : undefined
-    } as Book);
-    else undefined
+    } as Book, auth);
   }
 
   @Get(':id')
@@ -33,18 +30,14 @@ export class BookController {
   @ApiResponse({ status: 200, description: 'Successfully retrieved the book' })
   @ApiResponse({ status: 404, description: 'Book not found' })
   async find(@Headers('authorization') auth: string, @Param('id') id: string) {
-    const user = await this.userService.authorize(auth);
-    if (user) return await this.service.findById(id);
-    else undefined
+    return await this.service.findById(id, auth);
   }
 
   @Get()
   @ApiOperation({ summary: 'Retrieve all books' })
   @ApiResponse({ status: 200, description: 'Successfully retrieved all books' })
   async findAll(@Headers('authorization') auth: string) {
-    const user = await this.userService.authorize(auth);
-    if (user) return await this.service.findAll();
-    else undefined
+    return await this.service.findAll(auth);
   }
 
   @Delete(':id')
@@ -53,8 +46,6 @@ export class BookController {
   @ApiResponse({ status: 200, description: 'Successfully deleted the book' })
   @ApiResponse({ status: 404, description: 'Book not found' })
   async delete(@Headers('authorization') auth: string, @Param('id') id: string) {
-    const user = await this.userService.authorize(auth);
-    if (user) return await this.service.delete(id);
-    else undefined
+    return await this.service.delete(id, auth);
   }
 }

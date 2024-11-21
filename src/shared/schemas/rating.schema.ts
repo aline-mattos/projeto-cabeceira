@@ -1,7 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Book } from './book.schema';
-import { User } from './user.schema';
 
 export type RatingDocument = Rating & Document;
 
@@ -12,10 +10,10 @@ export class Rating {
   _id: Types.ObjectId;
   
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  user: User;
+  user: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, ref: 'Book', required: true })
-  book: Book;
+  book: Types.ObjectId;
 
   @Prop({ type: Number, required: true })
   rating: number;

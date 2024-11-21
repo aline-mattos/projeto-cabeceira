@@ -1,13 +1,26 @@
-import { Body, Controller, Delete, Get, Headers, Param, Post, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Headers, Param, Post, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { AuthenticationDTO } from './dto/authentication.dto';
 import { RegistrationDTO } from './dto/registration.dto';
+import { User } from '../../shared/schemas/user.schema';
 
 @ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(private readonly service: UserService) {}
+
+  @Get('/authorize')
+  @ApiOperation({ summary: 'Authorize a token and retrieve the user object' })
+  @ApiResponse({ status: 200, description: 'Successfully authorized and retrieved user.' })
+  @ApiResponse({ status: 401, description: 'Invalid or missing authorization token.' })
+  async authorize(@Headers('authorization') auth: string): Promise<User | undefined> {
+    const user = await this.service.authorize(auth);
+    if (!user) {
+      throw new UnauthorizedException('Invalid or missing authorization token.');
+    }
+    return user;
+  }
 
   @Post('/authenticate')
   @ApiOperation({ summary: 'Authenticate user.' })
@@ -30,9 +43,7 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'List of all users' })
   @ApiResponse({ status: 500, description: 'Server error' })
   async findAll(@Headers('authorization') auth: string) {
-    const user = await this.service.authorize(auth);
-    if (user) return await this.service.findAll();
-    else undefined
+    return await this.service.findAll(auth);
   }
 
   @Delete(':id')
@@ -41,9 +52,6 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'User deleted' })
   @ApiResponse({ status: 404, description: 'User not found' })
   async delete(@Headers('authorization') auth: string, @Param('id') id: string) {
-    const user = await this.service.authorize(auth);
-    if (user) return await this.service.delete(id);
-    else undefined
-    
+    return await this.service.delete(id, auth);
   }
 }

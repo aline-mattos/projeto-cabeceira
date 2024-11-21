@@ -105,7 +105,14 @@ export class UserService {
     return result.data;
   }
 
-  async findAll(): Promise<User[] | undefined> {
+  async findAll(auth: string): Promise<User[] | undefined> {
+    const user = await this.authorize(auth);
+
+    if (!user) {
+      console.log(`[I] UserService.findAll(${JSON.stringify(user)}): Unauthorized!`);
+      return undefined
+    }
+
     const result = await this.repo.findAll();
 
     if (result.error) console.log(`[E] UserService.findAll(): ${result.error}`); 
@@ -114,7 +121,14 @@ export class UserService {
     return result.data;
   }
 
-  async delete(id: string): Promise<User | undefined> {
+  async delete(id: string, auth: string): Promise<User | undefined> {
+    const user = await this.authorize(auth);
+
+    if (!user) {
+      console.log(`[I] UserService.delete(${JSON.stringify(user)}): Unauthorized!`);
+      return undefined
+    }
+
     const result = await this.repo.delete(id);
 
     if (result.error) console.log(`[E] UserService.delete(${id}): ${result.error}`); 

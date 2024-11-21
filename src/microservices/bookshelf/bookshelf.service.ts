@@ -2,29 +2,36 @@ import { Injectable } from '@nestjs/common';
 import { BookshelfRepo } from './bookshelf.repo';
 import { UpsertBookshelfDTO } from './dto/upsert-bookshelf.dto';
 import { Bookshelf } from '../../shared/schemas/bookshelf.schema';
-import { User } from '../../shared/schemas/user.schema';
 import { EventService } from '../../shared/services/event.service';
-import { BookService } from '../book/book.service';
+import { APIGateway } from '../../shared/gateway/api_gateway';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class BookshelfService {
   constructor(
     private readonly repo: BookshelfRepo,
-    private readonly bookService: BookService,
     private readonly eventService: EventService,
   ) {}
 
-  async upsert(dto: UpsertBookshelfDTO, user: User): Promise<Bookshelf | undefined> {
-    const book = await this.bookService.find({ _id: dto.bookId })
+  async upsert(dto: UpsertBookshelfDTO, auth: string): Promise<Bookshelf | undefined> {
+    const user = await APIGateway.user.authorize(auth);
+
+    if (!user) {
+      console.log(`[I] BookshelfService.upsert(${JSON.stringify(user)}): Unauthorized!`);
+      return undefined
+    }
+
+    const book = await APIGateway.book.getBookById(auth, dto.bookId)
+
     if (!book) {
-      console.log(`[I] RatingService.upsert(${JSON.stringify(book)}): Book not found!`);
+      console.log(`[I] BookshelfService.upsert(${JSON.stringify(book)}): Book not found!`);
       return undefined
     }
 
     const result = await this.repo.upsert(
       user._id.toString(), 
       {
-        book: book,
+        book: new Types.ObjectId(book._id),
         status: dto.status,
       }
     );
@@ -35,7 +42,14 @@ export class BookshelfService {
     return result.data;
   }
 
-  async updateStatus(dto: UpsertBookshelfDTO, user: User): Promise<Bookshelf | undefined> {
+  async updateStatus(dto: UpsertBookshelfDTO, auth: string): Promise<Bookshelf | undefined> {
+    const user = await APIGateway.user.authorize(auth);
+
+    if (!user) {
+      console.log(`[I] BookshelfService.updateStatus(${JSON.stringify(user)}): Unauthorized!`);
+      return undefined
+    }
+
     const result = await this.repo.updateBookStatus(user._id.toString(), dto.bookId, dto.status);
   
     if (result.error) console.log(`[E] BookshelfService.updateStatus(${JSON.stringify(dto)}): ${result.error}`); 
@@ -53,11 +67,18 @@ export class BookshelfService {
     return result.data;
   }
 
-  async removeBook(bookId: string, user: User): Promise<Bookshelf | undefined> { 
+  async removeBook(bookId: string, auth: string): Promise<Bookshelf | undefined> {
+    const user = await APIGateway.user.authorize(auth);
+
+    if (!user) {
+      console.log(`[I] BookshelfService.deleteBook(${JSON.stringify(user)}): Unauthorized!`);
+      return undefined
+    }
+
     const result = await this.repo.deleteBook(user._id.toString(), bookId);
 
-    if (result.error) console.log(`[E] BookshelfService.find(${bookId}): ${result.error}`); 
-    else console.log(`[I] BookshelfService.find(${bookId}): ${JSON.stringify(result.data)}`);
+    if (result.error) console.log(`[E] BookshelfService.deleteBook(${bookId}): ${result.error}`); 
+    else console.log(`[I] BookshelfService.deleteBook(${bookId}): ${JSON.stringify(result.data)}`);
   
     return result.data;
   }

@@ -1,12 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Book } from './book.schema';
-import { User } from './user.schema';
 
 @Schema({ _id: false, timestamps: false })
 export class BookStatus {
   @Prop({ type: Types.ObjectId, ref: 'Book', required: true })
-  book: Book;
+  book: Types.ObjectId;
 
   @Prop({ type: String, required: true })
   status: string;
@@ -24,7 +22,7 @@ export class Bookshelf {
   statuses: BookStatus[];
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  user: User;
+  user: Types.ObjectId;
 }
 
 export const BookshelfSchema = SchemaFactory.createForClass(Bookshelf);

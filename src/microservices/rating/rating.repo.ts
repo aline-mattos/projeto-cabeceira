@@ -22,24 +22,10 @@ export class RatingRepo {
     }
   }
 
-  async find(filter: Record<string, any>): Promise<ServiceResponse<Rating>> {
+  async find(filter: Record<string, any>): Promise<ServiceResponse<Rating[]>> {
     try {
-      const result = await this.model.findOne(filter).exec();
+      const result = await this.model.find(filter).exec();
   
-      if (result) {
-        return ServiceResponse.success(result);
-      } else {
-        return ServiceResponse.failure('Data not found!');
-      }
-    } catch (error) {
-      return ServiceResponse.failure(error);
-    }
-  }
-
-  async findAll(): Promise<ServiceResponse<Rating[]>> {
-    try {
-      const result = await this.model.find().exec();
-
       if (result) {
         return ServiceResponse.success(result);
       } else {
