@@ -3,18 +3,17 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { BookController } from './book.controller';
 import { BookService } from './book.service';
 import { BookRepo } from './book.repo';
-import { MongoDBModule } from '../../shared/modules/mongodb.module';
-import { EventModule } from '../../shared/modules/event.module';
+import { MongoDBModule } from '../../shared/mongodb.module';
 import { Book, BookSchema } from '../../shared/schemas/book.schema';
+import { EventService } from '../../shared/event.service';
 
 @Module({
   imports: [
     MongoDBModule,
-    EventModule,
     MongooseModule.forFeature([{ name: Book.name, schema: BookSchema }]),
   ],
   controllers: [BookController],
-  providers: [BookService, BookRepo],
+  providers: [EventService, BookService, BookRepo],
   exports: [BookService],
 })
 export class BookModule {}

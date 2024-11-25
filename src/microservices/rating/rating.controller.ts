@@ -1,15 +1,24 @@
-import { Controller, Get, Post, Body, Param, Delete, Headers, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Headers } from '@nestjs/common';
 import { RatingService } from './rating.service';
 import { UpsertRatingDTO } from './dto/upsert-rating.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
-import { APIGateway } from '../../shared/gateway/api_gateway';
 import { Types } from 'mongoose';
+import { MessagePattern } from '@nestjs/microservices';
 
 @ApiTags('rating')
 @Controller('rating')
 export class RatingController {
-  constructor(
-    private readonly service: RatingService) {}
+  constructor(private readonly service: RatingService) {}
+
+  @MessagePattern('book.delete')
+  async handleBookDeletion(data: any) {
+    console.log(`[I] RatingController.handleBookDeletion(${JSON.stringify(data)})`);
+  }
+
+  @MessagePattern('user.delete')
+  async handleUserDeletion(data: any) {
+    console.log(`[I] RatingController.handleUserDeletion(${JSON.stringify(data)})`);
+  }
 
   @Post('/upsert')
   @ApiOperation({ summary: 'Update/Insert a new rating' })

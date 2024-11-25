@@ -5,13 +5,22 @@ import { Bookshelf } from '../../shared/schemas/bookshelf.schema';
 import { ApiTags, ApiOperation, ApiBody, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { APIGateway } from '../../shared/gateway/api_gateway';
 import { Types } from 'mongoose';
+import { MessagePattern } from '@nestjs/microservices';
 
 @ApiTags('bookshelf')
 @Controller('bookshelf')
 export class BookshelfController {
-  constructor(
-    private readonly service: BookshelfService
-  ) {}
+  constructor(private readonly service: BookshelfService) {}
+
+  @MessagePattern("book.delete")
+  async handleBookDeletion(data: any) {
+    console.log(`[I] BookshelfController.handleBookDeletion(${JSON.stringify(data)})`);
+  }
+
+  @MessagePattern("user.delete")
+  async handleUserDeletion(data: any) {
+    console.log(`[I] BookshelfController.handleUserDeletion(${JSON.stringify(data)})`);
+  }
 
   @Post('add')
   @ApiOperation({ summary: 'Add a book to the user\'s bookshelf' })

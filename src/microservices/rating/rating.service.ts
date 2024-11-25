@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { RatingRepo } from './rating.repo';
-import { EventService } from '../../shared/services/event.service';
 import { Rating } from '../../shared/schemas/rating.schema';
 import { UpsertRatingDTO } from './dto/upsert-rating.dto';
-import { User } from '../../shared/schemas/user.schema';
 import { Types } from 'mongoose';
 import { APIGateway } from '../../shared/gateway/api_gateway';
+import { EventPattern, Payload } from '@nestjs/microservices';
+import { EventService } from '../../shared/event.service';
 
 @Injectable()
 export class RatingService {

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { BookRepo } from './book.repo';
 import { Book } from '../../shared/schemas/book.schema';
-import { EventService } from '../../shared/services/event.service';
+import { EventService } from '../../shared/event.service';
 import { APIGateway } from '../../shared/gateway/api_gateway';
 
 @Injectable()
@@ -87,6 +87,8 @@ export class BookService {
 
     if (result.error) console.log(`[E] BookService.delete(${id}): ${result.error}`); 
     else console.log(`[I] BookService.delete(${id}): ${JSON.stringify(result.data)}`);
+
+    this.eventService.emit("book.delete", id)
 
     return result.data;
   }

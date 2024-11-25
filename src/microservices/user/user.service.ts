@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepo } from './user.repo';
 import { User } from '../../shared/schemas/user.schema';
-import { EventService } from '../../shared/services/event.service';
+import { EventService } from '../../shared/event.service';
 import * as crypto from 'crypto';
 import { JwtPayload } from '../../shared/auth/jwt-payload';
 import { AuthenticationDTO } from './dto/authentication.dto';
@@ -133,6 +133,8 @@ export class UserService {
 
     if (result.error) console.log(`[E] UserService.delete(${id}): ${result.error}`); 
     else console.log(`[I] UserService.delete(${id}): ${JSON.stringify(result.data)}`);
+
+    this.eventService.emit("user.delete", id)
 
     return result.data;
   }

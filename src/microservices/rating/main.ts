@@ -26,15 +26,13 @@ async function service() {
    * Kafka configuration
    */
   app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.KAFKA,
+    transport: Transport.RMQ,
     options: {
-      client: {
-        brokers: [`kafka:9093`],
-      },
-      consumer: {
-        groupId: 'rating-service-group',
-        sessionTimeout: 30000,
-      },
+      urls: [process.env.RABBITMQ_URL || 'amqp://admin:admin@localhost:5672'],
+      queue: 'rating_queue',
+      queueOptions: { durable: true },
+      prefetchCount: 1,
+      noAck: false,
     },
   });
 

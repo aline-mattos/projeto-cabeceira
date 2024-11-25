@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { BookshelfRepo } from './bookshelf.repo';
 import { UpsertBookshelfDTO } from './dto/upsert-bookshelf.dto';
 import { Bookshelf } from '../../shared/schemas/bookshelf.schema';
-import { EventService } from '../../shared/services/event.service';
+import { EventService } from '../../shared/event.service';
 import { APIGateway } from '../../shared/gateway/api_gateway';
 import { Types } from 'mongoose';
+import { EventPattern, Payload } from '@nestjs/microservices';
 
 @Injectable()
 export class BookshelfService {
