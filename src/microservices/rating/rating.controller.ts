@@ -11,13 +11,21 @@ export class RatingController {
   constructor(private readonly service: RatingService) {}
 
   @MessagePattern('book.delete')
-  async handleBookDeletion(data: any) {
-    console.log(`[I] RatingController.handleBookDeletion(${JSON.stringify(data)})`);
+  async handleBookDeletion(bookId: any) {
+    if (!bookId) {
+      console.log('[E] Book ID not provided.');
+      return;
+    }
+    await this.service.deleteByFilter({ book: new Types.ObjectId(bookId) });
   }
 
   @MessagePattern('user.delete')
-  async handleUserDeletion(data: any) {
-    console.log(`[I] RatingController.handleUserDeletion(${JSON.stringify(data)})`);
+  async handleUserDeletion(userId: any) {
+    if (!userId) {
+      console.log('[E] User ID not provided.');
+      return;
+    }
+    await this.service.deleteByFilter({ user: new Types.ObjectId(userId) });
   }
 
   @Post('/upsert')

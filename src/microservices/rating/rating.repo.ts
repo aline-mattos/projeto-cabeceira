@@ -49,4 +49,14 @@ export class RatingRepo {
       return ServiceResponse.failure(error);
     }
   }
+
+  async deleteMany(filter: Record<string, any>): Promise<ServiceResponse<any>> {
+    try {
+      const result = await this.model.deleteMany(filter).exec();
+      return ServiceResponse.success(result);
+    } catch (error) {
+      return ServiceResponse.failure(error);
+    }
+  }
+  
 }

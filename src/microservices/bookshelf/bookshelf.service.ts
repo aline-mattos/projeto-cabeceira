@@ -83,4 +83,12 @@ export class BookshelfService {
   
     return result.data;
   }
+
+  async removeBookFromAllUsers(bookId: string): Promise<{ modifiedCount: number }> {
+    return this.repo.removeBookFromAllUsers(bookId);
+  }
+
+  async removeBookshelf(userId: string): Promise<{ deletedCount: number }> {
+    return this.repo.removeBookshelf(userId);
+  }
 }

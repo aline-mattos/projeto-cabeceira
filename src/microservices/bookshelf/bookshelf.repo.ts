@@ -91,5 +91,27 @@ export class BookshelfRepo {
       return ServiceResponse.failure(error);
     }
   }
+
+  async removeBookFromAllUsers(bookId: string): Promise<{ modifiedCount: number }> {
+    try {
+      const result = await this.model.updateMany(
+        { 'statuses.book': new Types.ObjectId(bookId) },
+        { $pull: { statuses: { book: new Types.ObjectId(bookId) } } }
+      ).exec();
+
+      return { modifiedCount: result.modifiedCount };
+    } catch (error) {
+      throw new Error(`Failed to delete book from all users' bookshelves: ${error}`);
+    }
+  }
+
+  async removeBookshelf(userId: string): Promise<{ deletedCount: number }> {
+    try {
+      const result = await this.model.deleteOne({ user: new Types.ObjectId(userId) }).exec();
+      return { deletedCount: result.deletedCount };
+    } catch (error) {
+      throw new Error(`Failed to delete bookshelf for user ${userId}: ${error}`);
+    }
+  }
 }
 

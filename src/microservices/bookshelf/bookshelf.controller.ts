@@ -13,13 +13,41 @@ export class BookshelfController {
   constructor(private readonly service: BookshelfService) {}
 
   @MessagePattern("book.delete")
-  async handleBookDeletion(data: any) {
-    console.log(`[I] BookshelfController.handleBookDeletion(${JSON.stringify(data)})`);
+  async handleBookDeletion(bookId: any) {
+    if (!bookId) {
+      console.log("[E] BookshelfController.handleBookDeletion: bookId is missing.");
+      return;
+    }
+
+    try {
+      const result = await this.service.removeBookFromAllUsers(bookId);
+      if (result.modifiedCount > 0) {
+        console.log(`[I] BookshelfController.handleBookDeletion: Successfully deleted book ${bookId} from all bookshelves.`);
+      } else {
+        console.log(`[W] BookshelfController.handleBookDeletion: No bookshelves found containing book ${bookId}.`);
+      }
+    } catch (error) {
+      console.log(`[E] BookshelfController.handleBookDeletion: ${error}`);
+    }
   }
 
   @MessagePattern("user.delete")
-  async handleUserDeletion(data: any) {
-    console.log(`[I] BookshelfController.handleUserDeletion(${JSON.stringify(data)})`);
+  async handleUserDeletion(userId: any) {
+    if (!userId) {
+      console.log("[E] BookshelfController.handleUserDeletion: userId is missing.");
+      return;
+    }
+
+    try {
+      const result = await this.service.removeBookshelf(userId);
+      if (result.deletedCount > 0) {
+        console.log(`[I] BookshelfController.handleUserDeletion: Successfully deleted bookshelf for user ${userId}.`);
+      } else {
+        console.log(`[W] BookshelfController.handleUserDeletion: Bookshelf not found for user ${userId}.`);
+      }
+    } catch (error) {
+      console.log(`[E] BookshelfController.handleUserDeletion: ${error}`);
+    }
   }
 
   @Post('add')

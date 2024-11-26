@@ -4,7 +4,6 @@ import { Rating } from '../../shared/schemas/rating.schema';
 import { UpsertRatingDTO } from './dto/upsert-rating.dto';
 import { Types } from 'mongoose';
 import { APIGateway } from '../../shared/gateway/api_gateway';
-import { EventPattern, Payload } from '@nestjs/microservices';
 import { EventService } from '../../shared/event.service';
 
 @Injectable()
@@ -73,4 +72,14 @@ export class RatingService {
 
     return result.data;
   }
+
+  async deleteByFilter(filter: Record<string, any>): Promise<void> {
+    const result = await this.repo.deleteMany(filter);
+    if (result.error) {
+      console.log(`[E] RatingService.deleteByFilter(${JSON.stringify(filter)}): ${result.error}`);
+    } else {
+      console.log(`[I] RatingService.deleteByFilter(${JSON.stringify(filter)}): ${result.data?.deletedCount} ratings deleted.`);
+    }
+  }
+  
 }
